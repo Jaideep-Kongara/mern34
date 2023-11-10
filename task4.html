@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Data</title>
+</head>
+<body>
+
+    <table border="1">
+        <thead>
+            <tr id="tableHeaders"></tr>
+        </thead>
+        <tbody id="userData"></tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('https://dummyjson.com/users')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Retrieved Data:', data);
+                    displayUserData(data.users);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+
+        function displayUserData(users) {
+            const userDataElement = document.getElementById('userData');
+            const tableHeadersElement = document.getElementById('tableHeaders');
+
+            if (!users || users.length === 0) {
+                console.log('No user data found or data is empty.');
+                return;
+            }
+
+            // Get the headers dynamically from the first user
+            const firstUser = users[0];
+
+            if (!firstUser || typeof firstUser !== 'object') {
+                console.log('Invalid data structure for the first user.');
+                return;
+            }
+
+            const headers = Object.keys(firstUser);
+
+            // Set table headers
+            tableHeadersElement.innerHTML = headers.map(header => `<th>${header}</th>`).join('');
+
+            // Populate the table with user data
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = headers.map(header => {
+                    if (header === 'image') {
+                        return `<td><img src="${user[header]}" alt="User Image" style="max-width: 100px; max-height: 100px;"></td>`;
+                    } else if (header === 'hair' && user[header] && typeof user[header] === 'object') {
+                        return `<td>${user[header].color} - ${user[header].type}</td>`;
+                    } else if (header === 'address' && user[header] && typeof user[header] === 'object') {
+                        return `<td>${user[header].address}, ${user[header].city}, ${user[header].state}, ${user[header].postalCode}</td>`;
+                    } else if (header === 'bank' && user[header] && typeof user[header] === 'object') {
+                        return `<td>${user[header].cardType} - ${user[header].cardNumber}</td>`;
+                    } else if (header === 'company' && user[header] && typeof user[header] === 'object') {
+                        return `<td>${user[header].name}, ${user[header].title}</td>`;
+                    } else {
+                        return `<td>${user[header]}</td>`;
+                    }
+                }).join('');
+                userDataElement.appendChild(row);
+            });
+        }
+    </script>
+
+</body>
+</html>
